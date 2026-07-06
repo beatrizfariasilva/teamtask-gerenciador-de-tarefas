@@ -1,73 +1,67 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-const tarefasIniciais = [
-  {
-    id: 1,
-    titulo: "Reuniao de equipe",
-    descricao: "Alinhar prioridades da semana e definir responsaveis.",
-    status: "Pendente",
-  },
-  {
-    id: 2,
-    titulo: "Branding",
-    descricao: "Ajustar paleta, logotipo e referencias visuais.",
-    status: "Pendente",
-  },
-  {
-    id: 3,
-    titulo: "Relatorio do cliente",
-    descricao: "Fechar os numeros do mes e revisar observacoes.",
-    status: "Pendente",
-  },
-  {
-    id: 4,
-    titulo: "Revisar contrato",
-    descricao: "Validacao final do documento.",
-    status: "Concluida",
-  },
-];
+const API_URL = "http://127.0.0.1:5000";
 
 function App() {
-  const [tarefas, setTarefas] = useState(tarefasIniciais);
+  const [tarefas, setTarefas] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
   const [filtro, setFiltro] = useState("Listar todas");
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
 
-  function criarTarefa(event) {
+  useEffect(() => {
+    async function carregarTarefas() {
+      const resposta = await fetch(`${API_URL}/tarefas`);
+      const dados = await resposta.json();
+      setTarefas(dados);
+    } carregarTarefas();}, []);
+
+  async function criarTarefa(event) {
     event.preventDefault();
-
     if (!titulo.trim()) return;
-
     const novaTarefa = {
-      id: Date.now(),
       titulo: titulo.trim(),
       descricao: descricao.trim(),
       status: "Pendente",
     };
-
-    setTarefas([novaTarefa, ...tarefas]);
+    const resposta = await fetch(`${API_URL}/tarefas`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(novaTarefa),
+    });
+    const dados = await resposta.json();
+    setTarefas([...dados, ...tarefas]);
     setTitulo("");
     setDescricao("");
     setModalAberto(false);
   }
 
-  function alterarStatus(id) {
+  async function alterarStatus(id) {
+    const tarefaAtual = tarefas.find((tarefa) => tarefa.id === id);
+    const novoStatus = tarefaAtual.status === "Concluída" ? "Pendente" : "Concluída";
+
+    const resposta = await fetch(`${API_URL}/tarefas/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status: novoStatus }),
+    });
+    const tarefaAtualizada = await resposta.json();
     setTarefas(
       tarefas.map((tarefa) =>
-        tarefa.id === id
-          ? {
-              ...tarefa,
-              status:
-                tarefa.status === "Concluida" ? "Pendente" : "Concluida",
-            }
-          : tarefa
+        tarefa.id === id ? tarefaAtualizada : tarefa
       )
     );
   }
 
-  function deletarTarefa(id) {
+  async function deletarTarefa(id) {
+    await fetch(`${API_URL}/tarefas/${id}`, {
+      method: "DELETE",
+    });
     setTarefas(tarefas.filter((tarefa) => tarefa.id !== id));
   }
 
@@ -75,11 +69,9 @@ function App() {
     if (filtro === "Pendentes") {
       return tarefas.filter((tarefa) => tarefa.status === "Pendente");
     }
-
-    if (filtro === "Concluidas") {
-      return tarefas.filter((tarefa) => tarefa.status === "Concluida");
+    if (filtro === "Concluídas") {
+      return tarefas.filter((tarefa) => tarefa.status === "Concluída");
     }
-
     return tarefas;
   }, [tarefas, filtro]);
 
@@ -88,7 +80,7 @@ function App() {
   ).length;
 
   const totalConcluidas = tarefas.filter(
-    (tarefa) => tarefa.status === "Concluida"
+    (tarefa) => tarefa.status === "Concluída"
   ).length;
 
   return (
@@ -103,21 +95,21 @@ function App() {
         <select value={filtro} onChange={(event) => setFiltro(event.target.value)}>
           <option>Listar todas</option>
           <option>Pendentes</option>
-          <option>Concluidas</option>
+          <option>Concluídas</option>
         </select>
       </header>
 
       <section className="linha-status">
         <span>{tarefas.length} tarefas</span>
         <span>{totalPendentes} pendentes</span>
-        <span>{totalConcluidas} concluidas</span>
+        <span>{totalConcluidas} concluídas</span>
       </section>
 
       <section className="grade">
         {tarefasFiltradas.map((tarefa) => (
           <article
             className={`pasta ${
-              tarefa.status === "Concluida" ? "concluida" : ""
+              tarefa.status === "Concluída" ? "concluída" : ""
             }`}
             key={tarefa.id}
           >
@@ -141,9 +133,9 @@ function App() {
                   className="botao-concluir"
                   onClick={() => alterarStatus(tarefa.id)}
                 >
-                  {tarefa.status === "Concluida"
+                  {tarefa.status === "Concluída"
                     ? "Voltar para pendente"
-                    : "Marcar como concluida"}
+                    : "Marcar como concluída"}
                 </button>
 
                 <button
