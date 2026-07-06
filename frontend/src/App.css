@@ -49,10 +49,10 @@ button {
   border: 0;
   border-radius: 999px;
   padding: 9px 18px;
-  background: #42b66b;
+  background: #000000;
   color: white;
   font-weight: 800;
-  box-shadow: 0 3px 0 #2d8d50;
+  box-shadow: 0 3px 0 #696969;
 }
 
 .topo select {
@@ -60,7 +60,7 @@ button {
   width: 170px;
   border: 2px solid #9aa6ad;
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   background: white;
   color: #263843;
   font-weight: 700;
@@ -172,12 +172,12 @@ button {
   border-radius: 7px;
   padding: 9px 10px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 200px;
 }
 
 .botao-concluir {
   border: 0;
-  background: #42b66b;
+  background: #000000;
   color: white;
 }
 
@@ -188,7 +188,7 @@ button {
 }
 
 .botao-concluir:hover {
-  background: #329b57;
+  background: #696969;
 }
 
 .botao-deletar:hover {
@@ -288,9 +288,9 @@ button {
   border: 0;
   border-radius: 8px;
   padding: 12px 16px;
-  background: #42b66b;
+  background: #000000;
   color: white;
-  font-weight: 900;
+  font-weight: 500px;
 }
 
 @media (max-width: 720px) {

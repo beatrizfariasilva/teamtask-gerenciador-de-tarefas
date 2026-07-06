@@ -95,10 +95,10 @@ function App() {
     <main className="app">
       <header className="topo">
         <button className="botao-novo" onClick={() => setModalAberto(true)}>
-          + New...
+          + Nova task
         </button>
 
-        <h1>Tasks & Team</h1>
+        <h1>TeamTask.</h1>
 
         <select value={filtro} onChange={(event) => setFiltro(event.target.value)}>
           <option>Listar todas</option>
@@ -126,12 +126,12 @@ function App() {
             <div className="conteudo-pasta">
               <div className="etiqueta-arquivo">
                 <div className="campo">
-                  <span>Titulo</span>
-                  <strong>{tarefa.titulo}</strong>
+                  <span>Título</span>
+                  {tarefa.titulo}
                 </div>
 
                 <div className="campo">
-                  <span>Descricao</span>
+                  <span>Descrição</span>
                   <p>{tarefa.descricao || "Sem descricao."}</p>
                 </div>
               </div>
@@ -179,7 +179,6 @@ function App() {
                 type="text"
                 value={titulo}
                 onChange={(event) => setTitulo(event.target.value)}
-                placeholder="Ex: Reuniao de alinhamento"
               />
             </label>
 
@@ -188,7 +187,6 @@ function App() {
               <textarea
                 value={descricao}
                 onChange={(event) => setDescricao(event.target.value)}
-                placeholder="Adicione uma descricao curta"
               />
             </label>
 
