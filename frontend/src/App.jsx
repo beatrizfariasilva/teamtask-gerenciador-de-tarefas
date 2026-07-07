@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "https://teamtask-gerenciador-de-tarefas.onrender.com";
 
 const STATUS = {
   PENDENTE: "Pendente",
