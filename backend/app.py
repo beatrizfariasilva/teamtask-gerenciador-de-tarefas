@@ -11,6 +11,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 MODELO_GEMINI = "gemini-2.5-flash"
 
+#crud de tarefas
 @app.route("/tarefas", methods=["POST"])
 def criar_tarefa():
     requisicao = request.json
@@ -59,6 +60,7 @@ def deletar_tarefas(id):
     except Exception as e:
         return jsonify({"erro": "Erro ao excluir tarefa.", "detalhes": str(e)}), 500
 
+#rota de sugestão de prioridades com IA
 @app.route("/tarefas/prioridades", methods=["GET"])
 def sugerir_prioridades():
     try:
@@ -70,6 +72,7 @@ def sugerir_prioridades():
     if not tarefas:
         return jsonify([]), 200
 
+    #prompt enviado para o gemini e as regras pra o retorno em json
     prompt = f"""
         Analise a lista de tarefas abaixo e sugira uma prioridade para cada uma.
 
