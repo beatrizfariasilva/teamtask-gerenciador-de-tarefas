@@ -3,187 +3,321 @@ import "./App.css";
 
 const API_URL = "http://127.0.0.1:5000";
 
+const STATUS = {
+  PENDENTE: "Pendente",
+  CONCLUIDA: "Concluída",
+};
+
+const FILTROS = {
+  TODAS: "Listar todas",
+  PENDENTES: "Pendentes",
+  CONCLUIDAS: "Concluídas",
+};
+
 function App() {
   const [tarefas, setTarefas] = useState([]);
+  const [carregandoTarefas, setCarregandoTarefas] = useState(true);
+  const [erro, setErro] = useState(null);
+
   const [modalAberto, setModalAberto] = useState(false);
-  const [filtro, setFiltro] = useState("Listar todas");
+  const [filtro, setFiltro] = useState(FILTROS.TODAS);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [salvando, setSalvando] = useState(false);
+
+  const [prioridades, setPrioridades] = useState([]);
+  const [carregandoPrioridades, setCarregandoPrioridades] = useState(false);
 
   useEffect(() => {
     async function carregarTarefas() {
-      const resposta = await fetch(`${API_URL}/tarefas`);
-      const dados = await resposta.json();
-      setTarefas(dados);
-    } carregarTarefas();}, []);
+      try {
+        setCarregandoTarefas(true);
+        const resposta = await fetch(`${API_URL}/tarefas`);
+        if (!resposta.ok) throw new Error("Falha ao carregar tarefas");
+        const dados = await resposta.json();
+        setTarefas(dados);
+      } catch (err) {
+        setErro("Não foi possível carregar as tarefas. Tente recarregar a página.");
+      } finally {
+        setCarregandoTarefas(false);
+      }
+    }
+    carregarTarefas();
+  }, []);
+
+  useEffect(() => {
+    if (!modalAberto) return;
+    function aoTeclar(event) {
+      if (event.key === "Escape") setModalAberto(false);
+    }
+    window.addEventListener("keydown", aoTeclar);
+    return () => window.removeEventListener("keydown", aoTeclar);
+  }, [modalAberto]);
 
   async function criarTarefa(event) {
     event.preventDefault();
-    if (!titulo.trim()) return;
+    if (!titulo.trim() || salvando) return;
+
     const novaTarefa = {
       titulo: titulo.trim(),
       descricao: descricao.trim(),
-      status: "Pendente",
+      status: STATUS.PENDENTE,
     };
-    const resposta = await fetch(`${API_URL}/tarefas`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(novaTarefa),
-    });
-    const dados = await resposta.json();
-    setTarefas([...dados, ...tarefas]);
-    setTitulo("");
-    setDescricao("");
-    setModalAberto(false);
+
+    try {
+      setSalvando(true);
+      const resposta = await fetch(`${API_URL}/tarefas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(novaTarefa),
+      });
+      if (!resposta.ok) throw new Error("Falha ao criar tarefa");
+
+      const tarefaCriada = await resposta.json();
+      setTarefas((atual) => [tarefaCriada, ...atual]);
+      setTitulo("");
+      setDescricao("");
+      setModalAberto(false);
+    } catch (err) {
+      setErro("Não foi possível criar a tarefa. Tente novamente.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   async function alterarStatus(id) {
     const tarefaAtual = tarefas.find((tarefa) => tarefa.id === id);
-    const novoStatus = tarefaAtual.status === "Concluída" ? "Pendente" : "Concluída";
+    if (!tarefaAtual) return;
 
-    const resposta = await fetch(`${API_URL}/tarefas/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: novoStatus }),
-    });
-    const tarefaAtualizada = await resposta.json();
-    setTarefas(
-      tarefas.map((tarefa) =>
-        tarefa.id === id ? tarefaAtualizada : tarefa
-      )
+    const novoStatus =
+      tarefaAtual.status === STATUS.CONCLUIDA ? STATUS.PENDENTE : STATUS.CONCLUIDA;
+
+      setTarefas((atual) =>
+      atual.map((tarefa) => (tarefa.id === id ? { ...tarefa, status: novoStatus } : tarefa))
     );
+
+    try {
+      const resposta = await fetch(`${API_URL}/tarefas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: novoStatus }),
+      });
+      if (!resposta.ok) throw new Error("Falha ao atualizar tarefa");
+      const tarefaAtualizada = await resposta.json();
+      setTarefas((atual) =>
+        atual.map((tarefa) => (tarefa.id === id ? tarefaAtualizada : tarefa))
+      );
+    } catch (err) {
+      setTarefas((atual) =>
+        atual.map((tarefa) => (tarefa.id === id ? tarefaAtual : tarefa))
+      );
+      setErro("Não foi possível atualizar o status da tarefa.");
+    }
   }
 
   async function deletarTarefa(id) {
-    await fetch(`${API_URL}/tarefas/${id}`, {
-      method: "DELETE",
-    });
-    setTarefas(tarefas.filter((tarefa) => tarefa.id !== id));
+    const confirmar = window.confirm("Tem certeza que deseja excluir esta tarefa?");
+    if (!confirmar) return;
+
+    const tarefasAnteriores = tarefas;
+    setTarefas((atual) => atual.filter((tarefa) => tarefa.id !== id));
+
+    try {
+      const resposta = await fetch(`${API_URL}/tarefas/${id}`, { method: "DELETE" });
+      if (!resposta.ok) throw new Error("Falha ao excluir tarefa");
+    } catch (err) {
+      setTarefas(tarefasAnteriores);
+      setErro("Não foi possível excluir a tarefa.");
+    }
+  }
+
+  async function gerarPrioridades() {
+    try {
+      setCarregandoPrioridades(true);
+      const resposta = await fetch(`${API_URL}/tarefas/prioridades`);
+      if (!resposta.ok) throw new Error("Falha ao gerar prioridades");
+      const dados = await resposta.json();
+      setPrioridades(dados);
+    } catch (err) {
+      setErro("Não foi possível gerar a análise de prioridades agora.");
+    } finally {
+      setCarregandoPrioridades(false);
+    }
   }
 
   const tarefasFiltradas = useMemo(() => {
-    if (filtro === "Pendentes") {
-      return tarefas.filter((tarefa) => tarefa.status === "Pendente");
+    if (filtro === FILTROS.PENDENTES) {
+      return tarefas.filter((tarefa) => tarefa.status === STATUS.PENDENTE);
     }
-    if (filtro === "Concluídas") {
-      return tarefas.filter((tarefa) => tarefa.status === "Concluída");
+    if (filtro === FILTROS.CONCLUIDAS) {
+      return tarefas.filter((tarefa) => tarefa.status === STATUS.CONCLUIDA);
     }
     return tarefas;
   }, [tarefas, filtro]);
 
-  const totalPendentes = tarefas.filter(
-    (tarefa) => tarefa.status === "Pendente"
-  ).length;
+  const totalPendentes = useMemo(
+    () => tarefas.filter((tarefa) => tarefa.status === STATUS.PENDENTE).length,
+    [tarefas]
+  );
 
-  const totalConcluidas = tarefas.filter(
-    (tarefa) => tarefa.status === "Concluída"
-  ).length;
+  const totalConcluidas = useMemo(
+    () => tarefas.filter((tarefa) => tarefa.status === STATUS.CONCLUIDA).length,
+    [tarefas]
+  );
 
   return (
     <main className="app">
       <header className="topo">
-        <button className="botao-novo" onClick={() => setModalAberto(true)}>
-          + Nova task
-        </button>
-
         <h1>TeamTask.</h1>
-
-        <select value={filtro} onChange={(event) => setFiltro(event.target.value)}>
-          <option>Listar todas</option>
-          <option>Pendentes</option>
-          <option>Concluídas</option>
-        </select>
       </header>
 
-      <section className="linha-status">
-        <span>{tarefas.length} tarefas</span>
-        <span>{totalPendentes} pendentes</span>
-        <span>{totalConcluidas} concluídas</span>
+      {erro && (
+        <div className="aviso-erro" role="alert">
+          <span>{erro}</span>
+          <button onClick={() => setErro(null)} aria-label="Fechar aviso">
+            x
+          </button>
+        </div>
+      )}
+
+      <section className="barra-acoes">
+        <div className="linha-status">
+          <span>{tarefas.length} tarefas</span>
+          <span>{totalPendentes} pendentes</span>
+          <span>{totalConcluidas} concluídas</span>
+        </div>
+
+        <div className="acoes">
+          <button className="botao-novo" onClick={() => setModalAberto(true)}>
+            + Nova task
+          </button>
+
+          <select value={filtro} onChange={(event) => setFiltro(event.target.value)}>
+            <option value={FILTROS.TODAS}>Listar todas</option>
+            <option value={FILTROS.PENDENTES}>Pendentes</option>
+            <option value={FILTROS.CONCLUIDAS}>Concluídas</option>
+          </select>
+        </div>
       </section>
 
       <section className="grade">
-        {tarefasFiltradas.map((tarefa) => (
-          <article
-            className={`pasta ${
-              tarefa.status === "Concluída" ? "concluída" : ""
-            }`}
-            key={tarefa.id}
+        {carregandoTarefas ? (
+          <div className="vazio">Carregando tarefas...</div>
+        ) : (
+          <>
+            {tarefasFiltradas.map((tarefa) => (
+              <article
+                className={`pasta ${tarefa.status === STATUS.CONCLUIDA ? "concluida" : ""}`}
+                key={tarefa.id}
+              >
+                <div className="aba" />
+
+                <div className="conteudo-pasta">
+                  <div className="etiqueta-arquivo">
+                    <div className="campo">
+                      <span>Título</span>
+                      <strong>{tarefa.titulo}</strong>
+                    </div>
+
+                    <div className="campo campo-descricao">
+                      <span>Descrição</span>
+                      <p>{tarefa.descricao || "Sem descrição."}</p>
+                    </div>
+                  </div>
+
+                  <div className="botoes-card">
+                    <button className="botao-concluir" onClick={() => alterarStatus(tarefa.id)}>
+                      {tarefa.status === STATUS.CONCLUIDA
+                        ? "Voltar para pendente"
+                        : "Marcar como concluída"}
+                    </button>
+
+                    <button className="botao-deletar" onClick={() => deletarTarefa(tarefa.id)}>
+                      Excluir tarefa
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {tarefasFiltradas.length === 0 && (
+              <div className="vazio">Nenhuma tarefa encontrada.</div>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="painel-ia">
+        <div className="topo-ia">
+          <div>
+            <h2>Prioridades sugeridas</h2>
+            <p>Análise de prioridade com base nas suas tarefas atuais.</p>
+          </div>
+
+          <button
+            className="botao-ia"
+            onClick={gerarPrioridades}
+            disabled={tarefas.length === 0 || carregandoPrioridades}
           >
-            <div className="aba" />
+            {carregandoPrioridades ? "Analisando..." : "Gerar análise"}
+          </button>
+        </div>
 
-            <div className="conteudo-pasta">
-              <div className="etiqueta-arquivo">
-                <div className="campo">
-                  <span>Título</span>
-                  {tarefa.titulo}
+        {prioridades.length > 0 ? (
+          <div className="lista-prioridades">
+            {prioridades.map((item) => (
+              <article className="item-prioridade" key={item.id}>
+                <div>
+                  <span>{item.prioridade}</span>
+                  <h3>{item.titulo}</h3>
                 </div>
 
-                <div className="campo">
-                  <span>Descrição</span>
-                  <p>{tarefa.descricao || "Sem descricao."}</p>
-                </div>
-              </div>
-
-              <div className="botoes-card">
-                <button
-                  className="botao-concluir"
-                  onClick={() => alterarStatus(tarefa.id)}
-                >
-                  {tarefa.status === "Concluída"
-                    ? "Voltar para pendente"
-                    : "Marcar como concluída"}
-                </button>
-
-                <button
-                  className="botao-deletar"
-                  onClick={() => deletarTarefa(tarefa.id)}
-                >
-                  Excluir tarefa
-                </button>
-              </div>
-            </div>
-          </article>
-        ))}
-
-        {tarefasFiltradas.length === 0 && (
-          <div className="vazio">Nenhuma tarefa encontrada.</div>
+                <p>{item.motivo}</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="ia-vazia">
+            Clique em gerar análise para receber sugestão de prioridade com IA.
+          </div>
         )}
       </section>
 
       {modalAberto && (
-        <div className="modal">
-          <form className="formulario" onSubmit={criarTarefa}>
+        <div className="modal" onClick={() => setModalAberto(false)}>
+          <form
+            className="formulario"
+            onSubmit={criarTarefa}
+            onClick={(event) => event.stopPropagation()}
+          >
             <div className="topo-formulario">
               <h2>Nova tarefa</h2>
 
-              <button type="button" onClick={() => setModalAberto(false)}>
+              <button type="button" onClick={() => setModalAberto(false)} aria-label="Fechar">
                 x
               </button>
             </div>
 
             <label>
-              Titulo
+              Título
               <input
                 type="text"
                 value={titulo}
                 onChange={(event) => setTitulo(event.target.value)}
+                autoFocus
               />
             </label>
 
             <label>
-              Descricao
+              Descrição
               <textarea
                 value={descricao}
                 onChange={(event) => setDescricao(event.target.value)}
               />
             </label>
 
-            <button className="salvar" type="submit">
-              Criar tarefa
+            <button className="salvar" type="submit" disabled={!titulo.trim() || salvando}>
+              {salvando ? "Salvando..." : "Criar tarefa"}
             </button>
           </form>
         </div>

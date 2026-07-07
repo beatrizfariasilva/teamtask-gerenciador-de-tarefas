@@ -20,6 +20,19 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #263843;
+  outline-offset: 2px;
+}
+
 .app {
   width: min(100%, 1180px);
   margin: 0 auto;
@@ -27,10 +40,6 @@ button {
 }
 
 .topo {
-  display: grid;
-  grid-template-columns: 140px 1fr 170px;
-  align-items: center;
-  gap: 20px;
   padding-bottom: 14px;
   border-bottom: 4px solid #263843;
 }
@@ -40,8 +49,47 @@ button {
   text-align: center;
   font-size: 32px;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0;
+}
+
+.aviso-erro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 2px solid #c84f4f;
+  border-radius: 8px;
+  background: #fbecec;
+  color: #a13c3c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.aviso-erro button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.barra-acoes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin: 18px 0 22px;
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .botao-novo {
@@ -51,11 +99,22 @@ button {
   padding: 9px 18px;
   background: #000000;
   color: white;
-  font-weight: 800;
+  font-weight: 500;
   box-shadow: 0 3px 0 #696969;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.topo select {
+.botao-novo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #696969;
+}
+
+.botao-novo:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #696969;
+}
+
+.acoes select {
   justify-self: end;
   width: 170px;
   border: 2px solid #9aa6ad;
@@ -63,18 +122,18 @@ button {
   padding: 8px 14px;
   background: white;
   color: #263843;
-  font-weight: 700;
+  font-weight: 500;
   outline: none;
 }
 
 .linha-status {
   display: flex;
   gap: 16px;
-  margin: 18px 0 22px;
   color: #7a858b;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .grade {
@@ -126,6 +185,12 @@ button {
   border-radius: 8px;
   background: white;
   box-shadow: 0 4px 0 rgba(38, 56, 67, 0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.conteudo-pasta:hover {
+  box-shadow: 0 6px 14px rgba(38, 56, 67, 0.08);
+  transform: translateY(-2px);
 }
 
 .etiqueta-arquivo {
@@ -151,6 +216,7 @@ button {
   color: #263843;
   font-size: 17px;
   line-height: 1.2;
+  font-weight: 700;
 }
 
 .campo p {
@@ -158,6 +224,18 @@ button {
   color: #4f5f67;
   font-size: 14px;
   line-height: 1.35;
+}
+
+.campo-descricao {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.campo-descricao p {
+  display: box;
+  line-clamp: 3;
+  box-orient: vertical;
+  overflow: hidden;
 }
 
 .botoes-card {
@@ -172,7 +250,8 @@ button {
   border-radius: 7px;
   padding: 9px 10px;
   font-size: 12px;
-  font-weight: 200px;
+  font-weight: 600;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
 .botao-concluir {
@@ -196,24 +275,14 @@ button {
   color: #c84f4f;
 }
 
-.pasta.concluida .conteudo-pasta {
-  background: #f4faf6;
-}
-
-.pasta.concluida .campo strong,
-.pasta.concluida .campo p {
-  opacity: 0.58;
-  text-decoration: line-through;
-}
-
 .vazio {
   grid-column: 1 / -1;
   padding: 32px;
-  border: 2px dashed #d9dedf;
+  border: 1px dashed #d9dedf;
   border-radius: 8px;
   color: #7a858b;
   text-align: center;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .modal {
@@ -223,6 +292,16 @@ button {
   place-items: center;
   padding: 20px;
   background: rgba(38, 56, 67, 0.28);
+  animation: aparecer 0.15s ease;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .formulario {
@@ -251,6 +330,8 @@ button {
   color: #7a858b;
   font-size: 20px;
   font-weight: 900;
+  line-height: 1;
+  padding: 4px 8px;
 }
 
 .formulario label {
@@ -259,7 +340,7 @@ button {
   margin-bottom: 16px;
   color: #53626a;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -271,6 +352,8 @@ button {
   padding: 12px;
   outline: none;
   color: #263843;
+  text-transform: none;
+  font-weight: 400;
 }
 
 .formulario textarea {
@@ -280,7 +363,7 @@ button {
 
 .formulario input:focus,
 .formulario textarea:focus {
-  border-color: #42b66b;
+  border-color: #263843;
 }
 
 .salvar {
@@ -290,7 +373,123 @@ button {
   padding: 12px 16px;
   background: #000000;
   color: white;
-  font-weight: 500px;
+  font-weight: 600;
+  transition: background 0.12s ease;
+}
+
+.salvar:hover:not(:disabled) {
+  background: #333333;
+}
+
+.botao-ia {
+  border: 1px solid #263843;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #263843;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.botao-ia:hover:not(:disabled) {
+  background: #263843;
+  color: #fbfaf7;
+}
+
+.pasta.concluida .conteudo-pasta {
+  background: #f3f2ee;
+}
+
+.pasta.concluida .campo {
+  border-bottom-color: #9aa6ad;
+}
+
+.pasta.concluida .campo,
+.pasta.concluida .campo p {
+  color: #7a858b;
+}
+
+.pasta.concluida .campo strong,
+.pasta.concluida .campo p {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.painel-ia {
+  margin-top: 34px;
+  padding: 22px;
+  border: 1px dashed #d9dedf;
+  border-radius: 8px;
+  background: #fbfaf7;
+}
+
+.topo-ia {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding-bottom: 16px;
+}
+
+.topo-ia h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.topo-ia p {
+  margin: 6px 0 0;
+  color: #7a858b;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.lista-prioridades {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.item-prioridade {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid #d9dedf;
+  border-radius: 8px;
+  background: white;
+}
+
+.item-prioridade span {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #7a858b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.item-prioridade h3 {
+  margin: 0;
+  color: #263843;
+  font-size: 16px;
+}
+
+.item-prioridade p {
+  margin: 0;
+  color: #4f5f67;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.ia-vazia {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 8px;
+  color: #7a858b;
+  text-align: center;
+  font-weight: 500;
 }
 
 @media (max-width: 720px) {
@@ -298,24 +497,36 @@ button {
     padding: 24px 16px;
   }
 
-  .topo {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-  }
-
   .topo h1 {
-    grid-row: 1;
     text-align: left;
     font-size: 28px;
   }
 
+  .barra-acoes,
+  .acoes {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .botao-novo,
-  .topo select {
+  .acoes select {
     width: 100%;
-    justify-self: stretch;
   }
 
   .linha-status {
     flex-wrap: wrap;
+  }
+
+  .topo-ia {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .botao-ia {
+    width: 100%;
+  }
+
+  .aba {
+    width: 60%;
   }
 }
