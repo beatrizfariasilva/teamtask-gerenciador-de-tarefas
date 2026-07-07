@@ -12,7 +12,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 MODELO_GEMINI = "gemini-2.5-flash"
 
 @app.route("/tarefas", methods=["POST"])
-def create_task():
+def criar_tarefa():
     requisicao = request.json
 
     if not requisicao or not requisicao.get("titulo", "").strip():
@@ -27,7 +27,7 @@ def create_task():
         return jsonify({"erro": "Erro ao criar tarefa.", "detalhes": str(e)}), 500
 
 @app.route("/tarefas", methods=["GET"])
-def read_tasks():
+def listar_tarefas():
     try:
         resposta = supabase.table("tarefas").select("*").order("id", desc=True).execute()
         return jsonify(resposta.data), 200
@@ -35,7 +35,7 @@ def read_tasks():
         return jsonify({"erro": "Erro ao buscar tarefas.", "detalhes": str(e)}), 500
 
 @app.route("/tarefas/<id>", methods=["PATCH"])
-def update_task(id):
+def atualizar_tarefas(id):
     status_atualizado = request.json
 
     if not status_atualizado:
@@ -50,7 +50,7 @@ def update_task(id):
         return jsonify({"erro": "Erro ao atualizar tarefa.", "detalhes": str(e)}), 500
 
 @app.route("/tarefas/<id>", methods=["DELETE"])
-def delete_task(id):
+def deletar_tarefas(id):
     try:
         resposta = supabase.table("tarefas").delete().eq("id", id).execute()
         if not resposta.data:
