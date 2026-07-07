@@ -3,10 +3,12 @@
 Aplicação web para cadastrar, listar, filtrar e acompanhar tarefas, com sugestão de prioridade gerada por IA.
 
 🔗 **App hospedado no Vercel:** https://teamtask-gerenciador-de-tarefas.vercel.app
+
 🔗 **API:** https://teamtask-gerenciador-de-tarefas.onrender.com
+
 🔗 **Repo:** (https://github.com/beatrizfariasilva/teamtask-gerenciador-de-tarefas/tree/main)
 
-![alt text](image-2.png)
+(image-2.png)
 
 ---
 
