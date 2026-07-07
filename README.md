@@ -29,7 +29,6 @@ Aplicação web para cadastrar, listar, filtrar e acompanhar tarefas, com sugest
 
 ## Arquitetura
 
-```
 ``` 
 teamtask-gerenciador-de-tarefas/
 ├─ README.md
@@ -51,7 +50,6 @@ teamtask-gerenciador-de-tarefas/
       ├─ main.jsx
       └─ assets/
          └─ hero.png
-```
 ```
 
 Front-end e back-end são independentes, comunicam-se via HTTP.
