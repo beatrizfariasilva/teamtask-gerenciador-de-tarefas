@@ -1,4 +1,4 @@
-/* a base */
+/*base*/
 * {
   box-sizing: border-box;
 }
@@ -41,7 +41,7 @@ textarea:focus-visible {
   padding: 32px 28px;
 }
 
-/* cabeçalho */
+/*cabeçalho */
 .topo {
   padding-bottom: 7px;
   border-bottom: 4px solid #263843;
@@ -56,7 +56,7 @@ textarea:focus-visible {
   letter-spacing: 0;
 }
 
-/* aviso de erro */
+/* aviso de erro*/
 .aviso-erro {
   display: flex;
   align-items: center;
@@ -82,7 +82,7 @@ textarea:focus-visible {
   padding: 0 4px;
 }
 
-/* barra de filtro */
+/* barra ações e filtro */
 .barra-acoes {
   display: flex;
   justify-content: space-between;
@@ -141,7 +141,7 @@ textarea:focus-visible {
   letter-spacing: 0.02em;
 }
 
-/* tarefas */
+/* tarefa */
 .grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -291,7 +291,27 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
-/* modal de nova tarefa */
+
+.pasta.concluida .conteudo-pasta {
+  background: #f3f2ee;
+}
+
+.pasta.concluida .campo {
+  border-bottom-color: #9aa6ad;
+}
+
+.pasta.concluida .campo,
+.pasta.concluida .campo p {
+  color: #7a858b;
+}
+
+.pasta.concluida .campo strong,
+.pasta.concluida .campo p {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+/* modal de criação de outra tarefa */
 .modal {
   position: fixed;
   inset: 0;
@@ -388,44 +408,7 @@ textarea:focus-visible {
   background: #333333;
 }
 
-.botao-ia {
-  border: 1px solid #263843;
-  border-radius: 999px;
-  padding: 8px 16px;
-  background: transparent;
-  color: #263843;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  transition: background 0.12s ease, color 0.12s ease;
-}
-
-.botao-ia:hover:not(:disabled) {
-  background: #263843;
-  color: #fbfaf7;
-}
-
-.pasta.concluida .conteudo-pasta {
-  background: #f3f2ee;
-}
-
-.pasta.concluida .campo {
-  border-bottom-color: #9aa6ad;
-}
-
-.pasta.concluida .campo,
-.pasta.concluida .campo p {
-  color: #7a858b;
-}
-
-.pasta.concluida .campo strong,
-.pasta.concluida .campo p {
-  opacity: 0.65;
-  text-decoration: line-through;
-}
-
-/* painel de prioridades */
+/* prioridades (ia) */
 .painel-ia {
   margin-top: 34px;
   padding: 22px;
@@ -452,6 +435,24 @@ textarea:focus-visible {
   color: #7a858b;
   font-size: 10px;
   font-weight: 400;
+}
+
+.botao-ia {
+  border: 1px solid #263843;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #263843;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.botao-ia:hover:not(:disabled) {
+  background: #263843;
+  color: #fbfaf7;
 }
 
 .lista-prioridades {
@@ -500,6 +501,7 @@ textarea:focus-visible {
   font-weight: 500;
 }
 
+/* responsivo */
 @media (max-width: 720px) {
   .app {
     padding: 24px 16px;
