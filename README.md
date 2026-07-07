@@ -102,9 +102,9 @@ npm run dev
 
 ## Decisões técnicas
 
-- **Front-end e back-end separados**, conforme exigido no desafio — facilita manutenção e deploy independente.
-- **Supabase** como banco de dados para persistência real dos dados.
-- **Gemini API** como diferencial: analisa as tarefas cadastradas e devolve prioridade + motivo curto.
+- **Supabase** como banco de dados para persistência dos dados.
+- **Consumo de API + Ferramenta de IA** como diferencial: o Gemini analisa as tarefas cadastradas e devolve prioridade + motivo curto.
+- **Dados sensíveis em .env** para proteção das chaves e url
 
 ## Uso de IA no desenvolvimento
 
